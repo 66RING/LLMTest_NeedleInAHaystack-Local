@@ -163,3 +163,4 @@ dmypy.json
 cython_debug/
 
 .idea/
+heatmap.png

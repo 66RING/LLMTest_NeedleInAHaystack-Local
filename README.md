@@ -1,3 +1,18 @@
+# Cheat sheet
+
+run Needle In A Haystack with local LLM. like (check makefile out)
+
+```bash
+python test.py --provider local --model_name $(MODELS_DIR)/tinyllama-110M  --document_depth_percent_intervals 10 --document_depth_percent_interval_type linear --context_lengths_max 65536
+```
+
+Llama model only for now. You can add your own model by adding a new class in `needlehaystack/providers` like `needlehaystack/providers/local_llama.py`
+
+- Terms
+    * depth: where to insert the needle
+    * document_depth_percent_intervals: range = (min, max, (max-min)/document_depth_percent_intervals)
+
+
 # Needle In A Haystack - Pressure Testing LLMs
 
 A simple 'needle in a haystack' analysis to test in-context retrieval ability of long context LLMs.

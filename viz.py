@@ -55,13 +55,15 @@ for model_name in model_names:
     sns.heatmap(
         pivot_table,
         # annot=True,
+        vmax=10,
+        vmin=0,
         fmt="g",
         cmap=cmap,
         cbar_kws={'label': 'Score'}
     )
 
     # More aesthetics
-    plt.title('Pressure Testing GPT-4 128K Context\nFact Retrieval Across Context Lengths ("Needle In A HayStack")')  # Adds a title
+    plt.title(f'Pressure Testing {model_name} Context\nFact Retrieval Across Context Lengths ("Needle In A HayStack")')  # Adds a title
     plt.xlabel('Token Limit')  # X-axis label
     plt.ylabel('Depth Percent')  # Y-axis label
     plt.xticks(rotation=45)  # Rotates the x-axis labels to prevent overlap
@@ -70,5 +72,6 @@ for model_name in model_names:
 
     # Show the plot
     plt.savefig(f'{model_name}.png')  # Save the plot as an image
-    plt.show()
+    # plt.show()
+
 

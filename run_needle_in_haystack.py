@@ -158,10 +158,23 @@ class LLMNeedleHaystackTester:
 
         # Run through each iteration of context_lengths and depths
         tasks = []
+        # Get your Paul Graham files loaded into a string
+        context = self.read_context_files()
+        context_tokens = self.get_tokens_from_context(context)
         for context_length in self.context_lengths:
             if context_length < args.s_len or context_length > args.e_len: continue
             for depth_percent in self.document_depth_percents:
-                task = self.bound_evaluate_and_log(context_length, depth_percent)
+                # Go generate the required length context and place your needle statement in
+                if len(context_tokens) > context_length:
+                    trimed_context_str = self.decode_tokens(context_tokens, context_length)
+                else:
+                    trimed_context_str = context
+
+                # Insert your random statement according to your depth percent
+                inserted_context_str = self.insert_needle(trimed_context_str, depth_percent, context_length)
+
+                task = self.bound_evaluate_and_log(inserted_context_str, context_length, depth_percent)
+
 
     def generate_prompt(self, context):
         # Generate the prompt for the Anthropic model
@@ -190,7 +203,7 @@ class LLMNeedleHaystackTester:
                 
             ]
 
-    def evaluate_and_log(self, context_length, depth_percent):
+    def evaluate_and_log(self, context, context_length, depth_percent):
         # Checks to see if you've already checked a length/percent/version.
         # This helps if the program stop running and you want to restart later
         if self.save_results:
@@ -200,9 +213,6 @@ class LLMNeedleHaystackTester:
             else:
                 print("result does not exist, testing")
 
-        # Go generate the required length context and place your needle statement in
-        context = self.generate_context(context_length, depth_percent)
-
         # Prepare your message to send to the model you're going to evaluate
         prompt = self.generate_prompt(context)
         test_start_time = time.time()
@@ -211,7 +221,7 @@ class LLMNeedleHaystackTester:
         input_ids = prompt['input_ids'].to(self.model_to_test.device)
         
         output_ids = self.model_to_test.generate(
-            input_ids, 
+            input_ids,
             output_attentions=False,
             max_new_tokens=40,
             num_beams=1,
@@ -303,20 +313,6 @@ class LLMNeedleHaystackTester:
                         return True
         return False
 
-    def generate_context(self, context_length, depth_percent):
-        # Load up tiktoken so we navigate tokens more easily
-
-        # Get your Paul Graham files loaded into a string
-        context = self.read_context_files()
-
-        # Truncate the Paul Graham essays to the context length you desire
-        context = self.encode_and_trim(context, context_length)
-
-        # Insert your random statement according to your depth percent
-        context = self.insert_needle(context, depth_percent, context_length)
-
-        return context
-    
     def encode_text_to_tokens(self, text):
         if self.model_provider in ["Mistral", "LLaMA3"]:
             return self.enc.encode(text)

@@ -164,3 +164,4 @@ cython_debug/
 
 .idea/
 heatmap.png
+standalone/results_needle

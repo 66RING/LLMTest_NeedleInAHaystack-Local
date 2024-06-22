@@ -202,7 +202,6 @@ class LLMNeedleHaystackTester:
 
         # Go generate the required length context and place your needle statement in
         context = self.generate_context(context_length, depth_percent)
-        print("> context", context)
 
         # Prepare your message to send to the model you're going to evaluate
         prompt = self.generate_prompt(context)

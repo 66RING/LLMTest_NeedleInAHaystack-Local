@@ -2,12 +2,11 @@
 
 run Needle In A Haystack with local LLM. like (check makefile out)
 
-```bash
-cd ./standalone && make
-# python test.py --provider local --model_name $(MODELS_DIR)/tinyllama-110M  --document_depth_percent_intervals 10 --document_depth_percent_interval_type linear --context_lengths_max 65536
-```
+just
 
-Llama model only for now. You can add your own model by adding a new class in `needlehaystack/providers` like `needlehaystack/providers/local_llama.py`
+```bash
+make
+```
 
 - Terms
     * depth: where to insert the needle

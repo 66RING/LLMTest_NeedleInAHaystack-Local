@@ -23,6 +23,7 @@ from openai import OpenAI
 from datetime import datetime, timezone
 import time
 import torch
+import gc
 
 scorer = rouge_scorer.RougeScorer(['rouge1', 'rougeL'], use_stemmer=True)
 
@@ -174,6 +175,10 @@ class LLMNeedleHaystackTester:
                 inserted_context_str = self.insert_needle(trimed_context_str, depth_percent, context_length)
 
                 task = self.bound_evaluate_and_log(inserted_context_str, context_length, depth_percent)
+
+                gc.collect()
+                torch.cuda.empty_cache()
+
 
 
     def generate_prompt(self, context):

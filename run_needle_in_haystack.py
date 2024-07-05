@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 import time
 import torch
 import gc
+import pickle
 
 scorer = rouge_scorer.RougeScorer(['rouge1', 'rougeL'], use_stemmer=True)
 
@@ -160,8 +161,16 @@ class LLMNeedleHaystackTester:
         # Run through each iteration of context_lengths and depths
         tasks = []
         # Get your Paul Graham files loaded into a string
-        context = self.read_context_files()
-        context_tokens = self.get_tokens_from_context(context)
+        cache_file = './context_cache.pkl'
+        if os.path.exists(cache_file):
+            with open(cache_file, 'rb') as f:
+                context_tokens = pickle.load(f)
+        else:
+            context = self.read_context_files()
+            context_tokens = self.get_tokens_from_context(context)
+            with open(cache_file, 'wb') as f:
+                pickle.dump(context_tokens, f)
+
         for context_length in self.context_lengths:
             if context_length < args.s_len or context_length > args.e_len: continue
             for depth_percent in self.document_depth_percents:

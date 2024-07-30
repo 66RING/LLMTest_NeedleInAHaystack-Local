@@ -19,7 +19,6 @@ from rouge_score import rouge_scorer
 import sys
 import os
 
-from openai import OpenAI
 from datetime import datetime, timezone
 import time
 import torch
@@ -35,7 +34,7 @@ class LLMNeedleHaystackTester:
     def __init__(self,
                  needle="\nThe best thing to do in San Francisco is eat a sandwich and sit in Dolores Park on a sunny day.\n",
                  haystack_dir="data/PaulGrahamEssays", # PaulGrahamEssays  
-                 retrieval_question="The best thing to do in San Francisco is: ", 
+                 retrieval_question="What is the best thing to do in San Francisco?", 
                  results_version = 1,
                  context_lengths_min = 1000,
                  context_lengths_max = None,
@@ -161,15 +160,16 @@ class LLMNeedleHaystackTester:
         # Run through each iteration of context_lengths and depths
         tasks = []
         # Get your Paul Graham files loaded into a string
-        cache_file = './context_cache.pkl'
+        cache_file = f"./context_cache_{self.model_name.split('/')[-1]}_{max(self.context_lengths)}.pkl"
         if os.path.exists(cache_file):
+            print("context cache found")
             with open(cache_file, 'rb') as f:
                 context_tokens = pickle.load(f)
         else:
             context = self.read_context_files()
             context_tokens = self.get_tokens_from_context(context)
             with open(cache_file, 'wb') as f:
-                pickle.dump(context_tokens, f)
+                pickle.dump(context_tokens[:max(self.context_lengths)], f)
 
         for context_length in self.context_lengths:
             if context_length < args.s_len or context_length > args.e_len: continue
@@ -178,13 +178,12 @@ class LLMNeedleHaystackTester:
                 if len(context_tokens) > context_length:
                     trimed_context_str = self.decode_tokens(context_tokens, context_length)
                 else:
-                    trimed_context_str = context
+                    trimed_context_str = self.decode_tokens(context_tokens)
 
                 # Insert your random statement according to your depth percent
                 inserted_context_str = self.insert_needle(trimed_context_str, depth_percent, context_length)
 
                 task = self.bound_evaluate_and_log(inserted_context_str, context_length, depth_percent)
-
                 gc.collect()
                 torch.cuda.empty_cache()
 
@@ -245,8 +244,6 @@ class LLMNeedleHaystackTester:
         )
         response = self.enc.decode(output_ids[0][input_ids.shape[1]:], skip_special_tokens=True).strip()
 
-        
-        print(response)
         test_end_time = time.time()
         test_elapsed_time = test_end_time - test_start_time
         if len(response) != 0:
@@ -274,6 +271,7 @@ class LLMNeedleHaystackTester:
             print (f"Context: {context_length} tokens")
             print (f"Depth: {depth_percent}%")
             print (f"Score: {score}")
+            print (f"Needle: {self.needle}")
             print (f"Response: {response}\n")
 
         context_file_location = f'{self.model_version.replace(".", "_")}_len_{context_length}_depth_{int(depth_percent*100)}'

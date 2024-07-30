@@ -10,8 +10,6 @@ MODEL_NAMES=(
   "Yarn-Llama-2-7b-128k"
 )
 
-export COMPRESS_ON=1
-
 for MODEL_NAME in "${MODEL_NAMES[@]}"; do
   python -u run_needle_in_haystack.py --s_len $START --e_len $END \
       --model_name $MODELS_DIR/${MODEL_NAME} \

@@ -190,31 +190,56 @@ class LLMNeedleHaystackTester:
 
 
     def generate_prompt(self, context):
-        # Generate the prompt for the Anthropic model
-        # Replace the following line with the appropriate prompt structure
-        if(self.model_provider not in ["OpenAI", "Anthropic"]):
-            test_format=f"<|im_start|> This is a very long story book: <book> {context} </book>.\n Based on the content of the book, Question: {self.retrieval_question}\nAnswer:"
-            return test_format
-        else: 
-            return [
-                {
-                    "role": "system",
-                    "content": "You are a helpful AI bot that answers questions for a user. Keep your response short and direct"
+        # # Generate the prompt for the Anthropic model
+        # # Replace the following line with the appropriate prompt structure
+        # if(self.model_provider not in ["OpenAI", "Anthropic"]):
+        #     test_format=f"<|im_start|> This is a very long story book: <book> {context} </book>.\n Based on the content of the book, Question: {self.retrieval_question}\nAnswer:"
+        #     return test_format
+        # else: 
+        #     return [
+        #         {
+        #             "role": "system",
+        #             "content": "You are a helpful AI bot that answers questions for a user. Keep your response short and direct"
+        #         },
+        #         {
+        #             "role": "user",
+        #             "content": context
+        #             },
+        #         {
+        #             "role": "user",
+        #             "content": f"{self.retrieval_question} Don't give information outside the document or repeat your findings. The document definitely contains the answer, and I'm 100% sure. So try your best to find it."
+        #         },
+        #         {
+        #             "role": "assistant",
+        #             "content":"",
+        #         },
+        #     ]
+        prompt= [
+            {
+                "role": "system",
+                "content": "You are a helpful AI bot that answers questions for a user. Keep your response short and direct"
+            },
+            {
+                "role": "user",
+                "content": context
                 },
-                {
-                    "role": "user",
-                    "content": context
-                    },
-                {
-                    "role": "user",
-                    "content": f"{self.retrieval_question} Don't give information outside the document or repeat your findings. The document definitely contains the answer, and I'm 100% sure. So try your best to find it."
-                },
-                {
-                    "role": "assistant",
-                    "content":"",
-                },
-                
-            ]
+            {
+                "role": "user",
+                "content": f"{self.retrieval_question} Don't give information outside the document or repeat your findings. The document definitely contains the answer, and I'm 100% sure. So try your best to find it."
+            },
+            {
+                "role": "assistant",
+                "content":"",
+            },
+            
+        ]
+        prompt = self.enc.apply_chat_template(
+                prompt,
+                tokenize=False,
+                add_generation_prompt=True
+        )
+        return prompt
+
 
     def evaluate_and_log(self, context, context_length, depth_percent):
         # Checks to see if you've already checked a length/percent/version.

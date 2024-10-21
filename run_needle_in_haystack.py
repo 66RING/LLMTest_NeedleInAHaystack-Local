@@ -1,22 +1,18 @@
 """
 This script is adapted from 
 https://github.com/FranxYao/Long-Context-Data-Engineering
+Created by @66RING 6/6/2024
 """
 
-import tiktoken
 import os 
-import pdb
 import glob
-import jieba
 
 import json
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from anthropic import Anthropic
 import numpy as np
 import argparse
 from rouge_score import rouge_scorer
 
-import sys
 import os
 
 from datetime import datetime, timezone
